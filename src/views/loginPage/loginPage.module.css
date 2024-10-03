@@ -1,10 +1,9 @@
-*{
+.loginContainer * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
-body{
+.loginContainer{
     font-family: 'Nunito', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

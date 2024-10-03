@@ -22,7 +22,7 @@ function HomePage() {
 
 
     return (
-        <div className='homepage'>
+        <div className='homePage'>
             {
                 loading ?
                     <CircleLoader color='#abdbe3' loading={loading} size={150} />

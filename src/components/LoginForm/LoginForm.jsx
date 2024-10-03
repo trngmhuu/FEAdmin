@@ -55,10 +55,10 @@ function LoginForm() {
 
     return (
         <div className='wrapper'>
-            <div>
-                <h1>Welcome Back, Admin!</h1>
-            </div>
             <form onSubmit={handleLogin}>
+                <div>
+                    <h1>Welcome Back, Admin!</h1>
+                </div>
                 <div className='input-box'>
                     <input
                         type='text'
