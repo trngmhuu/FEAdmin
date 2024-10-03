@@ -12,6 +12,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import MainDashboard from '../../components/Main/mainDashboard/MainDashboard';
 import MainUser from '../../components/Main/mainUser/MainUser';
 import MainTour from '../../components/Main/mainTour/MainTour';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 
 function HomePage() {
@@ -50,7 +51,15 @@ function HomePage() {
                     <>
                         <Header />
                         <SideBar changeComponent={changeComponent} />
-                        {componentsMap[activeComponent]} {/* Hiển thị component tương ứng */}
+                        <TransitionGroup>
+                            <CSSTransition
+                                key={activeComponent}
+                                timeout={300}
+                                classNames="fade"
+                            >
+                                <div>{componentsMap[activeComponent]}</div>
+                            </CSSTransition>
+                        </TransitionGroup>
                     </>
             }
         </div>
