@@ -1,7 +1,7 @@
 
 
 
-.sidebar{
+.sidebar {
     position: fixed;
     top: 60px;
     left: 0;
@@ -141,6 +141,7 @@
     transition: 0.3;
     padding: 10px 0 10px 40px;
     transition: 0.3s;
+    text-decoration: none;
 }
 
 .sidebar-nav .nav-content a i{
@@ -150,7 +151,7 @@
     border-radius: 50%;
 } 
 
-.sidebar-nav .nav-content a:hover
+.sidebar-nav .nav-content a:hover,
 .sidebar-nav .nav-content a.active{
     color: #4151f1;
 }
