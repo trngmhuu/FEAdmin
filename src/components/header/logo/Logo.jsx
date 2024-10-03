@@ -4,7 +4,7 @@ import './logo.css'
 function Logo() {
     const handleToggleSideBar = () => {
         document.body.classList.toggle('toggle-sidebar')
-    }
+    };
 
     return (
         <div className='d-flex align-items-center justify-content-between'>

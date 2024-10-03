@@ -8,7 +8,7 @@ function NavAvatar() {
                 href='#'
                 data-bs-toggle='dropdown'
             >
-                <span className='d-none d-md-block dropdown=tpggle ps-2'>Admin</span>
+                <span className='d-none d-md-block dropdown-toggle ps-2'>Admin</span>
             </a>
 
             <ul className='dropdown-menu dropdown-menu-end dropdown-menu-arrow profile'>
@@ -34,9 +34,7 @@ function NavAvatar() {
                 </li>
 
                 <li>
-                    <a
-                        className='dropdown-item d-flex align-items-center'
-                    >
+                    <a className='dropdown-item d-flex align-items-center'>
                         <i className='bi bi-box-arrow-right'></i>
                         <span>Logout</span>
                     </a>
