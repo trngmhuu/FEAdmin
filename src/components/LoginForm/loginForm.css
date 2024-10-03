@@ -62,3 +62,65 @@
 .wrapper form{
     padding: 20px;
 }
+
+/* Media queries cho màn hình nhỏ (dưới 768px) */
+@media (max-width: 768px) {
+    .wrapper {
+        width: 65%;
+        padding: 20px;
+    }
+
+    .wrapper h1 {
+        font-size: 28px;
+    }
+
+    .input-box {
+        margin: 20px 0;
+    }
+
+    .input-box input {
+        font-size: 14px;
+        padding: 15px 40px 15px 15px;
+    }
+
+    .input-box .icon {
+        font-size: 14px;
+        right: 15px;
+    }
+
+    .wrapper button {
+        height: 40px;
+        font-size: 14px;
+    }
+}
+
+/* Media queries cho màn hình rất nhỏ (dưới 480px) */
+@media (max-width: 480px) {
+    .wrapper {
+        width: 70%;
+        padding: 15px;
+    }
+
+    .wrapper h1 {
+        font-size: 24px;
+    }
+
+    .input-box {
+        margin: 15px 0;
+    }
+
+    .input-box input {
+        font-size: 13px;
+        padding: 10px 35px 10px 10px;
+    }
+
+    .input-box .icon {
+        font-size: 12px;
+        right: 10px;
+    }
+
+    .wrapper button {
+        height: 35px;
+        font-size: 13px;
+    }
+}
