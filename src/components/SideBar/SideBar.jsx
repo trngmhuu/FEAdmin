@@ -53,24 +53,16 @@ function SideBar({ changeComponent }) {
                         <i class="bi bi-people-fill"></i>
                         <span>Quản lý người dùng</span>
                     </a>
-                    {/* <ul
-                        id="components-nav-user"
-                        className="nav-content collapse"
-                        data-bs-parent="#sidebar-nav"
+                </li>
+
+                <li className="nav-item">
+                    <a
+                        className="nav-link collapsed"
+                        onClick={() => changeComponent('tour')}
                     >
-                        <li>
-                            <a href="#">
-                                <i className="bi bi-circle"></i>
-                                <span>Thêm người dùng</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i className="bi bi-circle"></i>
-                                <span>Danh sách người dùng</span>
-                            </a>
-                        </li>
-                    </ul> */}
+                        <i class="bi bi-airplane-fill"></i>
+                        <span>Quản lý Tour</span>
+                    </a>
                 </li>
 
             </ul>
