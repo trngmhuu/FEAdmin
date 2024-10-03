@@ -1,7 +1,7 @@
 import React from 'react'
 import './sideBar.css'
 
-function SideBar() {
+function SideBar({ changeComponent }) {
     return (
         <aside id='sidebar' className='sidebar'>
             <ul className="sidebar-nav" id="sidebar-nav">
@@ -48,15 +48,12 @@ function SideBar() {
                 <li className="nav-item">
                     <a
                         className="nav-link collapsed"
-                        data-bs-target="#components-nav-user"
-                        data-bs-toggle="collapse"
-                        href="#"
+                        onClick={() => changeComponent('user')}
                     >
                         <i class="bi bi-people-fill"></i>
                         <span>Quản lý người dùng</span>
-                        <i className="bi bi-chevron-down ms-auto"></i>
                     </a>
-                    <ul
+                    {/* <ul
                         id="components-nav-user"
                         className="nav-content collapse"
                         data-bs-parent="#sidebar-nav"
@@ -73,7 +70,7 @@ function SideBar() {
                                 <span>Danh sách người dùng</span>
                             </a>
                         </li>
-                    </ul>
+                    </ul> */}
                 </li>
 
             </ul>

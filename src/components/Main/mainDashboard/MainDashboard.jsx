@@ -1,9 +1,9 @@
 import React from 'react'
-import './main.css'
-import PageTitle from './pageTitle/PageTitle'
+import './mainDashboard.css'
+import PageTitle from '../pageTitle/PageTitle'
 import Dashboard from './dashboard/Dashboard'
 
-function Main() {
+function MainDashboard() {
     return (
         <main id="main" className="main">
             <PageTitle page="Tổng quan" />
@@ -12,4 +12,4 @@ function Main() {
     )
 }
 
-export default Main
+export default MainDashboard

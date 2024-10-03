@@ -9,10 +9,15 @@ import 'remixicon/fonts/remixicon.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
-import Main from '../../components/Main/Main';
+import MainDashboard from '../../components/Main/mainDashboard/MainDashboard';
+import MainUser from '../../components/Main/mainUser/MainUser';
+import MainTour from '../../components/Main/mainTour/MainTour';
+
 
 function HomePage() {
     const [loading, setLoading] = useState(false);
+    const [activeComponent, setActiveComponent] = useState('dashboard');
+
     useEffect(() => {
         setLoading(true);
         setTimeout(() => {
@@ -20,17 +25,32 @@ function HomePage() {
         }, 1000);
     }, [])
 
+    // Ánh xạ các component với tên
+    const componentsMap = {
+        dashboard: <MainDashboard />,
+        user: <MainUser />,
+        tour: <MainTour />,
+        // Thêm các component khác vào đây
+    };
+
+    // Hàm để thay đổi component đang hiển thị
+    const changeComponent = (component) => {
+        setActiveComponent(component);
+    };
+
 
     return (
         <div className='homePage'>
             {
                 loading ?
-                    <CircleLoader color='#abdbe3' loading={loading} size={150} />
+                    <div className="loader-container">
+                        <CircleLoader color='#33CCFF' loading={loading} size={150} />
+                    </div>
                     :
                     <>
                         <Header />
-                        <SideBar />
-                        <Main />
+                        <SideBar changeComponent={changeComponent} />
+                        {componentsMap[activeComponent]} {/* Hiển thị component tương ứng */}
                     </>
             }
         </div>
