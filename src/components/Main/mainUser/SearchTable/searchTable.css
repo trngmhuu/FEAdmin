@@ -1,0 +1,37 @@
+.searchtable-container {
+    padding: 0;
+    margin-top: 30px;
+    list-style: none;
+}
+
+.searchtable-container li {
+    padding-left: 45px;
+    margin: 0;
+    list-style: none;
+}
+
+.search-container {
+    background: white; /* Màu khung */
+
+    padding: 20px; /* Thêm padding cho khung */
+    border-radius: 4px; /* Bo góc */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng cho khung */
+}
+
+.search-form {
+    display: flex; /* Sử dụng flexbox để căn giữa */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: space-between; /* Phân bố đều các phần tử */
+    font-size: 15px;
+    font-weight: 600;
+    color: #4154f1;
+    transition: 0.3s;
+    background: #f6f9ff; /* Màu nền cho form */
+    padding: 10px 15px; /* Padding cho form */
+    border-radius: 4px; /* Bo góc cho form */
+}
+
+.search-form h6 {
+    margin: 0; /* Xóa margin cho tiêu đề */
+    padding-right: 10px; /* Thêm khoảng cách cho tiêu đề */
+}

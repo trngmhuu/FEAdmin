@@ -17,7 +17,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 function HomePage() {
     const [loading, setLoading] = useState(false);
-    const [activeComponent, setActiveComponent] = useState('dashboard');
+    const [activeComponent, setActiveComponent] = useState('user');
 
     useEffect(() => {
         setLoading(true);
