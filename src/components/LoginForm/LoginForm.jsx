@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './loginForm.css'
 import { FaLock, FaUser } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -25,6 +26,7 @@ function LoginForm() {
             });
 
             const data = await response.json();
+            console.log(data);
             const token = data.result.token; // Lấy token từ phản hồi API
 
             // Tách phần payload từ token
@@ -36,6 +38,7 @@ function LoginForm() {
 
             // Chuyển đổi chuỗi JSON thành object
             const decodedPayload = JSON.parse(jsonPayload);
+            console.log(decodedPayload);
 
             if (response.ok && decodedPayload.scope === 'ADMIN') {
                 // Đăng nhập thành công, điều hướng về trang chủ

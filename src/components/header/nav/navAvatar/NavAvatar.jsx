@@ -2,7 +2,7 @@ import React from 'react'
 
 function NavAvatar() {
     return (
-        <li className='nav-item dropdown pe-3'>
+        <div className='nav-item dropdown pe-3'>
             <a
                 className='nav-link nav-profile d-flex align-items-center pe-0'
                 href='#'
@@ -47,7 +47,7 @@ function NavAvatar() {
 
 
             </ul>
-        </li >
+        </ div>
     )
 }
 
