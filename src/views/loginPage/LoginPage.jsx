@@ -1,10 +1,13 @@
 import React from 'react'
 import LoginForm from '../../components/LoginForm/LoginForm';
-import './loginPage.css'
+import styles from './loginPage.module.css';
 
 function LoginPage() {
     return (
-        <LoginForm />
+        <div className='styles.loginPage'>
+            <LoginForm />
+        </div>
+
     )
 }
 

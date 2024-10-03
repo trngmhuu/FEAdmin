@@ -9,6 +9,7 @@ import 'remixicon/fonts/remixicon.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
+import Main from '../../components/Main/Main';
 
 function HomePage() {
     const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ function HomePage() {
                     <>
                         <Header />
                         <SideBar />
+                        <Main />
                     </>
             }
         </div>
