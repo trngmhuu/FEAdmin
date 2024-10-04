@@ -6,7 +6,8 @@ function SideBar({ changeComponent }) {
         <aside id='sidebar' className='sidebar'>
             <ul className="sidebar-nav" id="sidebar-nav">
                 <li className="nav-item">
-                    <a href="/home" className="nav-link">
+                    <a className="nav-link"
+                        onClick={() => changeComponent('dashboard')}>
                         <i className="bi bi-grid"></i>
                         <span>Tổng quan</span>
                     </a>
