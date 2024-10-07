@@ -1,4 +1,4 @@
-import { Button, Form, Input, Table } from 'antd';
+import { Tag, Button, Form, Input, Table } from 'antd';
 import React, { useState, useEffect } from 'react';
 import './searchTable.css';
 import { DeleteFilled, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -12,27 +12,28 @@ function SearchTable() {
 
     const [data, setData] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token'); // Thay 'your_token_key' bằng key mà bạn đã dùng để lưu token
-                const response = await fetch('http://localhost:8080/users', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Thêm token vào header
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
-                setData(result.result); // Giả sử bạn cần lấy dữ liệu từ trường 'result'
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            const token = localStorage.getItem('token');
 
+            const response = await fetch('http://localhost:8080/users', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const result = await response.json();
+            setData(result.result);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -46,14 +47,14 @@ function SearchTable() {
 
     const handleReset = () => {
         setSearchParams({
-            name: '',
+            username: '',
             email: '',
-            phone: '',
+            phoneNumber: '',
         });
     };
 
     const handleReload = () => {
-        window.location.reload(); // Reload trang
+        fetchData();
     };
 
     const handleAdd = () => {
@@ -85,13 +86,16 @@ function SearchTable() {
             title: 'Giới tính',
             dataIndex: 'gender',
             key: 'gender',
-            render: (gender) => (gender ? 'Male' : 'Female'),
+            render: (gender) => (gender ? 'Nam' : 'Nữ'),
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isOnline',
             key: 'isOnline',
-            render: (isOnline) => (isOnline ? 'Online' : 'Offline'),
+            render: (_, { isOnline }) => (
+                <Tag color={isOnline ? 'green' : 'volcano'}>
+                    {isOnline ? 'Hoạt động' : 'Không hoạt động'}
+                </Tag>
+            ),
         },
         {
             title: 'Ngày sinh',
@@ -116,11 +120,10 @@ function SearchTable() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/users/id/${id}`, { method: 'DELETE' }); // Gọi API xóa người dùng theo ID
+            const response = await fetch(`/users/id/${id}`, { method: 'DELETE' });
             const result = await response.json();
             console.log(result);
-
-            setData(data.filter(item => item.id !== id)); // Xóa người dùng khỏi state sau khi xóa trên server
+            setData(data.filter(item => item.id !== id));
         } catch (error) {
             console.error('Error deleting user:', error);
         }
@@ -131,12 +134,12 @@ function SearchTable() {
             <ul className='searchtable-container'>
                 <li className='search-container'>
                     <h6>Tìm kiếm người dùng</h6>
-                    <Form layout="inline">
+                    <Form className="custom-inline-form" layout="inline">
                         <Form.Item>
                             <Input
                                 name="username"
                                 placeholder="Tên"
-                                value={searchParams.name}
+                                value={searchParams.username}
                                 onChange={handleInputChange}
                             />
                         </Form.Item>
@@ -152,7 +155,7 @@ function SearchTable() {
                             <Input
                                 name="phoneNumber"
                                 placeholder="Số điện thoại"
-                                value={searchParams.phone}
+                                value={searchParams.phoneNumber}
                                 onChange={handleInputChange}
                             />
                         </Form.Item>
@@ -189,12 +192,12 @@ function SearchTable() {
             <div className='table-container'>
                 <Table
                     columns={columns}
-                    dataSource={data} // Dữ liệu người dùng lấy từ API
-                    rowKey="id" // Dùng id để định danh mỗi hàng trong bảng
+                    dataSource={data}
+                    rowKey="id"
                     pagination={{
-                        pageSize: 3, // Số lượng bản ghi trên mỗi trang
-                        showSizeChanger: true, // Cho phép người dùng thay đổi số lượng bản ghi/trang
-                        pageSizeOptions: ['3', '5', '10'], // Các tùy chọn số lượng bản ghi trên mỗi trang
+                        pageSize: 3,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['3', '5', '10'],
                     }}
                 />
             </div>

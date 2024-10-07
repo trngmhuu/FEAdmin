@@ -5,6 +5,7 @@
     position: absolute;
     top: 0px; /* Khoảng cách từ trên cùng của màn hình */
     left: 10px;
+    width: 80%;
     ;
 }
 

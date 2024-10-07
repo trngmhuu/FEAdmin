@@ -1,4 +1,5 @@
 .searchtable-container {
+    width: 100%;
     padding: 0;
     margin-top: 30px;
     list-style: none;
@@ -53,5 +54,20 @@
     display: flex;
     gap: -50px; /* Khoảng cách giữa các nút */
     justify-content: center; /* Căn giữa nút trong ô */
+}
+
+.custom-inline-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.custom-inline-form Input{
+    width: 280px;
+    margin-top: 10px;
+}
+
+.custom-inline-form button{
+    margin-top: 10px;
 }
 

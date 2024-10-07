@@ -26,7 +26,6 @@ function LoginForm() {
             });
 
             const data = await response.json();
-            console.log(data);
             const token = data.result.token; // Lấy token từ phản hồi API
 
             // Tách phần payload từ token
@@ -38,14 +37,34 @@ function LoginForm() {
 
             // Chuyển đổi chuỗi JSON thành object
             const decodedPayload = JSON.parse(jsonPayload);
-            console.log(decodedPayload);
+
 
             if (response.ok && decodedPayload.scope === 'ADMIN') {
                 // Đăng nhập thành công, điều hướng về trang chủ
                 localStorage.setItem('token', token);
-                navigate('/home');
+                // Gọi API để lấy thông tin myinfo
+                const myinfoResponse = await fetch('http://localhost:8080/users/myinfo', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const myinfoData = await myinfoResponse.json();
+                if (myinfoResponse.ok) {
+                    // Nếu API trả về trường result, lấy result
+                    const userInfo = myinfoData.result || myinfoData;  // Sử dụng trực tiếp myinfoData nếu không có result
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
+                    // In thông tin userInfo ra console
+                    console.log('User Info:', userInfo);
+                    // Điều hướng đến trang chủ
+                    navigate('/home');
+                } else {
+                    alert('Không lấy được thông tin người dùng.');
+                }
             } else {
-                alert('Đăng nhập thất bại! Bạn không phải là Admin.');
+                alert('Đăng nhập thất bại! Bạn không có quyền truy cập.');
             }
         } catch (error) {
             console.error('Đăng nhập thất bại:', error);

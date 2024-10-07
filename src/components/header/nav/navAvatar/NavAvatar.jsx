@@ -1,6 +1,17 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
 
 function NavAvatar() {
+    const [userInfo, setUserInfo] = useState(null);
+
+    useEffect(() => {
+        // Lấy dữ liệu userInfo từ localStorage
+        const storedUserInfo = localStorage.getItem('userInfo');
+        if (storedUserInfo) {
+            // Parse JSON để lấy dữ liệu người dùng
+            setUserInfo(JSON.parse(storedUserInfo));
+        }
+    }, []);
+
     return (
         <div className='nav-item dropdown pe-3'>
             <a
@@ -8,12 +19,16 @@ function NavAvatar() {
                 href='#'
                 data-bs-toggle='dropdown'
             >
-                <span className='d-none d-md-block dropdown-toggle ps-2'>Admin</span>
+                {/* Hiển thị tên từ userInfo, mặc định là "Admin" nếu không có userInfo */}
+                <span className='d-none d-md-block dropdown-toggle ps-2'>
+                    {userInfo ? userInfo.username : 'Admin'}
+                </span>
             </a>
 
             <ul className='dropdown-menu dropdown-menu-end dropdown-menu-arrow profile'>
                 <li className='dropdown-header'>
-                    <h6>Admin</h6>
+                    {/* Hiển thị tên từ userInfo */}
+                    <h6>{userInfo ? userInfo.username : 'Admin'}</h6>
                     <span>Online</span>
                 </li>
                 <li>
@@ -42,11 +57,9 @@ function NavAvatar() {
                 <li>
                     <hr className='dropdown-divider' />
                 </li>
-
-
             </ul>
-        </ div>
-    )
+        </div>
+    );
 }
 
-export default NavAvatar
+export default NavAvatar;
