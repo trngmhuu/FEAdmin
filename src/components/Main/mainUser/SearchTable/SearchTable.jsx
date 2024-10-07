@@ -1,7 +1,8 @@
-import { Tag, Button, Form, Input, Table, Modal } from 'antd';
+import { Tag, Button, Form, Input, Table, Modal, message } from 'antd';
 import React, { useState, useEffect } from 'react';
 import './searchTable.css';
-import { DeleteFilled, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteFilled, ExclamationCircleOutlined, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+const { confirm } = Modal;
 
 function SearchTable() {
     const [searchParams, setSearchParams] = useState({
@@ -73,15 +74,43 @@ function SearchTable() {
         console.log('Editing', record);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (email) => {
         try {
-            const response = await fetch(`/users/id/${id}`, { method: 'DELETE' });
-            const result = await response.json();
-            console.log(result);
-            setData(data.filter(item => item.id !== id));
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:8080/users/${email}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (response.ok) {
+                const result = await response.json();
+                console.log('User deleted:', result);
+                fetchData(); // Cập nhật lại danh sách sau khi xóa thành công
+            } else {
+                throw new Error('Failed to delete user');
+            }
         } catch (error) {
             console.error('Error deleting user:', error);
         }
+    };
+
+    const showDeleteConfirm = (email) => {
+        confirm({
+            title: 'Bạn có chắc chắn muốn xóa người dùng này?',
+            icon: <ExclamationCircleOutlined />,
+            content: `Email: ${email}`,
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk() {
+                handleDelete(email); // Thực hiện hành động xóa nếu người dùng xác nhận
+            },
+            onCancel() {
+                console.log('Hủy hành động xóa');
+            },
+        });
     };
 
     const handleNewUserChange = (e) => {
@@ -118,14 +147,22 @@ function SearchTable() {
                     password: '',
                     roles: '', // Đặt giá trị mặc định cho role
                 });
+                message.success('Người dùng đã được thêm thành công'); // Thông báo thành công
             } else {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add user');
+                // Kiểm tra xem lỗi có phải do người dùng trùng lặp hay không
+                if (errorData.message && errorData.message.includes('User existed')) {
+                    message.error('Người dùng đã tồn tại. Vui lòng kiểm tra lại email.'); // Hiển thị thông báo lỗi trùng người dùng
+                } else {
+                    throw new Error(errorData.message || 'Failed to add user');
+                }
             }
         } catch (error) {
             console.error('Error adding user:', error);
+            message.error(error.message); // Hiển thị lỗi chung nếu có vấn đề khác
         }
     };
+
 
     const columns = [
         {
@@ -169,12 +206,16 @@ function SearchTable() {
             key: 'dateOfBirth',
         },
         {
+            title: 'Vai trò',
+            dataIndex: 'roles',
+        },
+        {
             title: 'Hiện thực',
             key: 'action',
             render: (text, record) => (
                 <div className="action-buttons">
                     <Button type="link" onClick={() => handleEdit(record)}><EyeOutlined /></Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}><DeleteFilled /></Button>
+                    <Button type="link" danger onClick={() => showDeleteConfirm(record.email)}><DeleteFilled /></Button>
                 </div>
             ),
         },
@@ -257,7 +298,16 @@ function SearchTable() {
             <Modal
                 title="Thêm người dùng mới"
                 visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    setNewUser({
+                        username: '',
+                        email: '',
+                        phoneNumber: '',
+                        password: '',
+                        roles: '', // Đặt lại giá trị mặc định
+                    });
+                }}
                 onOk={handleSaveNewUser}
             >
                 <Form layout="vertical">
