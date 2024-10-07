@@ -1,3 +1,4 @@
+import { color } from 'echarts';
 import React, { useEffect, useState } from 'react';
 
 function NavAvatar() {
@@ -29,7 +30,7 @@ function NavAvatar() {
                 <li className='dropdown-header'>
                     {/* Hiển thị tên từ userInfo */}
                     <h6>{userInfo ? userInfo.username : 'Admin'}</h6>
-                    <span>Online</span>
+                    <span>Hoạt động</span>
                 </li>
                 <li>
                     <hr className='dropdown-divider' />
@@ -41,7 +42,7 @@ function NavAvatar() {
                         href='user-profile.html'
                     >
                         <i className='bi bi-person'></i>
-                        <span>Profile</span>
+                        <span>Thông tin</span>
                     </a>
                 </li>
                 <li>
@@ -51,14 +52,14 @@ function NavAvatar() {
                 <li>
                     <a className='dropdown-item d-flex align-items-center'>
                         <i className='bi bi-box-arrow-right'></i>
-                        <span>Logout</span>
+                        <span>Đăng xuất</span>
                     </a>
                 </li>
                 <li>
                     <hr className='dropdown-divider' />
                 </li>
             </ul>
-        </div>
+        </div >
     );
 }
 
