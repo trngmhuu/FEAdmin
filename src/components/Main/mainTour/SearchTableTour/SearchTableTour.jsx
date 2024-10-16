@@ -1,10 +1,10 @@
-import { Tag, Button, Form, Input, Table, Modal, message, Select } from 'antd';
+import { Tag, Button, Form, Input, Table, Modal, message } from 'antd';
 import React, { useState, useEffect } from 'react';
-import './searchTable.css';
+import './searchTableTour.css';
 import { DeleteFilled, ExclamationCircleOutlined, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 const { confirm } = Modal;
 
-function SearchTable() {
+function SearchTableTour() {
     const [searchParams, setSearchParams] = useState({
         username: '',
         email: '',
@@ -12,20 +12,20 @@ function SearchTable() {
     });
 
     const [data, setData] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isModalVisibleEye, setIsModalVisibleEye] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false); // Để hiển thị modal
+
     const [newUser, setNewUser] = useState({
         username: '',
         email: '',
         phoneNumber: '',
-        password: '',
-        roles: [],
+        password: '', // Thêm trường password
+        roles: [], // Thêm trường role với giá trị mặc định là 'user'
     });
-    const [selectedUser, setSelectedUser] = useState(null); // New state for selected user
 
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
+
             const response = await fetch('http://localhost:8080/users', {
                 method: 'GET',
                 headers: {
@@ -68,12 +68,11 @@ function SearchTable() {
     };
 
     const handleAdd = () => {
-        setIsModalVisible(true);
+        setIsModalVisible(true); // Hiển thị modal khi nhấn nút thêm
     };
 
     const handleEdit = (record) => {
-        setSelectedUser(record); // Set the selected user
-        setIsModalVisibleEye(true);  // Show the modal
+        console.log('Editing', record);
     };
 
     const handleDelete = async (email) => {
@@ -89,7 +88,7 @@ function SearchTable() {
             if (response.ok) {
                 const result = await response.json();
                 console.log('User deleted:', result);
-                fetchData();
+                fetchData(); // Cập nhật lại danh sách sau khi xóa thành công
             } else {
                 throw new Error('Failed to delete user');
             }
@@ -100,14 +99,14 @@ function SearchTable() {
 
     const showDeleteConfirm = (email) => {
         confirm({
-            title: 'Bạn có chắc chắn muốn xóa người dùng này?',
+            title: 'Bạn có chắc chắn muốn xóa Tour  dùng này?',
             icon: <ExclamationCircleOutlined />,
             content: `Email: ${email}`,
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
             onOk() {
-                handleDelete(email);
+                handleDelete(email); // Thực hiện hành động xóa nếu người dùng xác nhận
             },
             onCancel() {
                 console.log('Hủy hành động xóa');
@@ -126,6 +125,7 @@ function SearchTable() {
     const handleSaveNewUser = async () => {
         try {
             const token = localStorage.getItem('token');
+
             const response = await fetch('http://localhost:8080/users/adminCreate', {
                 method: 'POST',
                 headers: {
@@ -138,29 +138,32 @@ function SearchTable() {
             if (response.ok) {
                 const result = await response.json();
                 console.log('User added:', result);
-                setIsModalVisible(false);
-                fetchData();
+                setIsModalVisible(false); // Ẩn modal sau khi thêm thành công
+                fetchData(); // Cập nhật danh sách người dùng sau khi thêm thành công
+                // Reset newUser state sau khi thêm thành công
                 setNewUser({
                     username: '',
                     email: '',
                     phoneNumber: '',
                     password: '',
-                    roles: '',
+                    roles: '', // Đặt giá trị mặc định cho role
                 });
-                message.success('Người dùng đã được thêm thành công');
+                message.success('Người dùng đã được thêm thành công'); // Thông báo thành công
             } else {
                 const errorData = await response.json();
+                // Kiểm tra xem lỗi có phải do người dùng trùng lặp hay không
                 if (errorData.message && errorData.message.includes('User existed')) {
-                    message.error('Người dùng đã tồn tại. Vui lòng kiểm tra lại email.');
+                    message.error('Người dùng đã tồn tại. Vui lòng kiểm tra lại email.'); // Hiển thị thông báo lỗi trùng người dùng
                 } else {
                     throw new Error(errorData.message || 'Failed to add user');
                 }
             }
         } catch (error) {
             console.error('Error adding user:', error);
-            message.error(error.message);
+            message.error(error.message); // Hiển thị lỗi chung nếu có vấn đề khác
         }
     };
+
 
     const columns = [
         {
@@ -249,11 +252,13 @@ function SearchTable() {
                                 onChange={handleInputChange}
                             />
                         </Form.Item>
+
                         <Form.Item>
                             <Button type="primary" onClick={handleReset}>
                                 Xóa Trắng
                             </Button>
                         </Form.Item>
+
                         <Form.Item>
                             <Button type="primary">
                                 Tìm kiếm
@@ -263,6 +268,7 @@ function SearchTable() {
                 </li>
             </ul>
 
+            {/* Header của bảng */}
             <div className='table-header'>
                 <h6>Bảng dữ liệu</h6>
                 <div className='table-header-actions'>
@@ -275,6 +281,7 @@ function SearchTable() {
                 </div>
             </div>
 
+            {/* Bảng dữ liệu với pagination */}
             <div className='table-container'>
                 <Table
                     columns={columns}
@@ -335,46 +342,19 @@ function SearchTable() {
                         />
                     </Form.Item>
                     <Form.Item label="Vai trò">
-                        <Select
+                        <select
                             name="roles"
-                            value={newUser.roles[0]}
-                            onChange={(value) => setNewUser({ ...newUser, roles: [value] })}
-                            style={{ width: '100%' }}
+                            value={newUser.roles}
+                            onChange={(e) => setNewUser({ ...newUser, roles: [e.target.value] })}
                         >
-                            <Select.Option value="USER">User</Select.Option>
-                            <Select.Option value="EMPLOYEE">Employee</Select.Option>
-                        </Select>
+                            <option value="USER">User</option>
+                            <option value="EMPLOYEE">Employee</option>
+                        </select>
                     </Form.Item>
                 </Form>
             </Modal>
-
-            {/* Modal to view user details */}
-            <Modal
-                title="Thông tin người dùng"
-                visible={!!selectedUser}
-                onCancel={() => setSelectedUser(null)}
-                footer={[
-                    <Button key="close" onClick={() => setSelectedUser(null)}>
-                        Đóng
-                    </Button>
-                ]}
-            >
-                {selectedUser && (
-                    <div>
-                        <p><strong>Email:</strong> {selectedUser.email}</p>
-                        <p><strong>Tên:</strong> {selectedUser.username}</p>
-                        <p><strong>Số điện thoại:</strong> {selectedUser.phoneNumber}</p>
-                        <p><strong>Địa chỉ:</strong> {selectedUser.address}</p>
-                        <p><strong>Giới tính:</strong> {selectedUser.gender ? 'Nam' : 'Nữ'}</p>
-                        <p><strong>Trạng thái:</strong> {selectedUser.isOnline ? 'Hoạt động' : 'Không hoạt động'}</p>
-                        <p><strong>Ngày sinh:</strong> {selectedUser.dateOfBirth}</p>
-                        <p><strong>Vai trò:</strong> {selectedUser.roles.join(', ')}</p>
-                    </div>
-                )}
-            </Modal>
-
         </div>
     );
 }
 
-export default SearchTable;
+export default SearchTableTour;

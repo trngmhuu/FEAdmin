@@ -59,6 +59,16 @@ function SideBar({ changeComponent }) {
                 <li className="nav-item">
                     <a
                         className="nav-link collapsed"
+                        onClick={() => changeComponent('tourtype')}
+                    >
+                        <i class="bi bi-card-list"></i>
+                        <span>Quản lý danh mục Tour</span>
+                    </a>
+                </li>
+
+                <li className="nav-item">
+                    <a
+                        className="nav-link collapsed"
                         onClick={() => changeComponent('tour')}
                     >
                         <i class="bi bi-airplane-fill"></i>

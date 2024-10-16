@@ -12,12 +12,13 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import MainDashboard from '../../components/Main/mainDashboard/MainDashboard';
 import MainUser from '../../components/Main/mainUser/MainUser';
 import MainTour from '../../components/Main/mainTour/MainTour';
+import MainTourType from '../../components/Main/mainTourType/MainTourType';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 
 function HomePage() {
     const [loading, setLoading] = useState(false);
-    const [activeComponent, setActiveComponent] = useState('user');
+    const [activeComponent, setActiveComponent] = useState('tourtype');
 
     useEffect(() => {
         setLoading(true);
@@ -31,6 +32,7 @@ function HomePage() {
         dashboard: <MainDashboard />,
         user: <MainUser />,
         tour: <MainTour />,
+        tourtype: <MainTourType />
         // Thêm các component khác vào đây
     };
 

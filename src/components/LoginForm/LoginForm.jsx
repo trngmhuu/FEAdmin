@@ -55,9 +55,6 @@ function LoginForm() {
                     // Nếu API trả về trường result, lấy result
                     const userInfo = myinfoData.result || myinfoData;  // Sử dụng trực tiếp myinfoData nếu không có result
                     localStorage.setItem('userInfo', JSON.stringify(userInfo));
-
-                    // In thông tin userInfo ra console
-                    console.log('User Info:', userInfo);
                     // Điều hướng đến trang chủ
                     navigate('/home');
                 } else {
