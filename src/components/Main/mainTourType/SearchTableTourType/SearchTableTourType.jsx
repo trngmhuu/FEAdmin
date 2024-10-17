@@ -193,6 +193,33 @@ function SearchTableTourType() {
                 />
             </div>
 
+
+            {/* Add New Tour Type Modal */}
+            <Modal
+                title="Thêm Loại Tour"
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                onOk={handleSaveNewTypeTour}
+            >
+                <Form layout="vertical">
+                    <Form.Item label="Tên Loại Tour">
+                        <Input
+                            value={newTypeTour.name}
+                            onChange={(e) => handleNewTypeTourChange('name', e.target.value)}
+                        />
+                    </Form.Item>
+                    <Form.Item label="Loại Tour">
+                        <Select
+                            value={newTypeTour.typeId}
+                            onChange={(value) => handleNewTypeTourChange('typeId', value)}
+                        >
+                            <Option value="1">Tour trong nước</Option>
+                            <Option value="2">Tour ngoài nước</Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
             <Modal
                 title="Chi Tiết Loại Tour"
                 visible={isDetailModalVisible}

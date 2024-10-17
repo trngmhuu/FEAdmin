@@ -37,9 +37,10 @@ function LoginForm() {
 
             // Chuyển đổi chuỗi JSON thành object
             const decodedPayload = JSON.parse(jsonPayload);
+            localStorage.setItem('scope', decodedPayload.scope);
 
 
-            if (response.ok && decodedPayload.scope === 'ADMIN') {
+            if (response.ok && (decodedPayload.scope === 'ADMIN' || decodedPayload.scope === 'EMPLOYEE')) {
                 // Đăng nhập thành công, điều hướng về trang chủ
                 localStorage.setItem('token', token);
                 // Gọi API để lấy thông tin myinfo

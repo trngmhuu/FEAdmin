@@ -372,7 +372,6 @@ function SearchTable() {
                     </div>
                 )}
             </Modal>
-
         </div>
     );
 }
