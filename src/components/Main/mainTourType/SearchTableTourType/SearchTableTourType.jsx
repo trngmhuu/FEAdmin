@@ -115,7 +115,7 @@ function SearchTableTourType() {
             } else throw new Error('Failed to add type tour');
         } catch (error) {
             console.error('Error adding type tour:', error);
-            message.error('Có lỗi xảy ra khi thêm!');
+            message.error('Kiểm tra dữ liệu thêm mới đã bị trùng!');
         }
     };
 

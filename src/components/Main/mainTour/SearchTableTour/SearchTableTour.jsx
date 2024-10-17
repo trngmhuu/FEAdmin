@@ -4,29 +4,39 @@ import './searchTableTour.css';
 import { DeleteFilled, ExclamationCircleOutlined, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 const { confirm } = Modal;
 
-function SearchTableTour() {
+function SearchTableTour({ changeComponent }) {
     const [searchParams, setSearchParams] = useState({
-        username: '',
-        email: '',
-        phoneNumber: '',
+        name: '',
+        tourCode: '',
     });
 
     const [data, setData] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false); // Để hiển thị modal
-
-    const [newUser, setNewUser] = useState({
-        username: '',
-        email: '',
-        phoneNumber: '',
-        password: '', // Thêm trường password
-        roles: [], // Thêm trường role với giá trị mặc định là 'user'
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false); // Thêm biến để kiểm soát chế độ chỉnh sửa
+    const [newTour, setNewTour] = useState({
+        tourId: '',
+        tourCode: '',
+        name: '',
+        description: '',
+        image: '',
+        typeTourId: '',
+        locationStart: '',
+        locationFinish: '',
+        availableDates: [], // Chứa nhiều ngày khởi hành
+        timeDate: '',
+        endDate: '',
+        price: '',
+        maxPeople: '',
+        vehicle: '',
+        note: '',
+        isActive: true, // Đặt giá trị mặc định là hoạt động
     });
 
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://localhost:8080/users', {
+            const response = await fetch('http://localhost:8080/tours', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,7 +47,7 @@ function SearchTableTour() {
                 throw new Error('Network response was not ok');
             }
             const result = await response.json();
-            setData(result.result);
+            setData(result); // Cập nhật với kết quả từ API
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -57,9 +67,8 @@ function SearchTableTour() {
 
     const handleReset = () => {
         setSearchParams({
-            username: '',
-            email: '',
-            phoneNumber: '',
+            name: '',
+            tourCode: '',
         });
     };
 
@@ -68,17 +77,38 @@ function SearchTableTour() {
     };
 
     const handleAdd = () => {
-        setIsModalVisible(true); // Hiển thị modal khi nhấn nút thêm
+        setIsModalVisible(true);
+        setIsEditMode(false); // Chế độ thêm
+        setNewTour({ // Reset newTour state
+            tourId: '',
+            tourCode: '',
+            name: '',
+            description: '',
+            image: '',
+            typeTourId: '',
+            locationStart: '',
+            locationFinish: '',
+            availableDates: [],
+            timeDate: '',
+            endDate: '',
+            price: '',
+            maxPeople: '',
+            vehicle: '',
+            note: '',
+            isActive: true,
+        });
     };
 
     const handleEdit = (record) => {
-        console.log('Editing', record);
+        setNewTour(record); // Khi chỉnh sửa, cập nhật thông tin vào newTour
+        setIsModalVisible(true); // Hiển thị modal chỉnh sửa
+        setIsEditMode(true); // Chế độ chỉnh sửa
     };
 
-    const handleDelete = async (email) => {
+    const handleDelete = async (tourId) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:8080/users/${email}`, {
+            const response = await fetch(`http://localhost:8080/tours/${tourId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,27 +116,26 @@ function SearchTableTour() {
                 },
             });
             if (response.ok) {
-                const result = await response.json();
-                console.log('User deleted:', result);
                 fetchData(); // Cập nhật lại danh sách sau khi xóa thành công
+                message.success('Tour đã được xóa thành công'); // Thông báo thành công
             } else {
-                throw new Error('Failed to delete user');
+                throw new Error('Failed to delete tour');
             }
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error deleting tour:', error);
         }
     };
 
-    const showDeleteConfirm = (email) => {
+    const showDeleteConfirm = (tourId) => {
         confirm({
-            title: 'Bạn có chắc chắn muốn xóa Tour  dùng này?',
+            title: 'Bạn có chắc chắn muốn xóa Tour này?',
             icon: <ExclamationCircleOutlined />,
-            content: `Email: ${email}`,
+            content: `Mã tour: ${tourId}`,
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
             onOk() {
-                handleDelete(email); // Thực hiện hành động xóa nếu người dùng xác nhận
+                handleDelete(tourId);
             },
             onCancel() {
                 console.log('Hủy hành động xóa');
@@ -114,109 +143,102 @@ function SearchTableTour() {
         });
     };
 
-    const handleNewUserChange = (e) => {
+    const handleNewTourChange = (e) => {
         const { name, value } = e.target;
-        setNewUser({
-            ...newUser,
+        setNewTour({
+            ...newTour,
             [name]: value,
         });
     };
 
-    const handleSaveNewUser = async () => {
+    const handleSaveNewTour = async () => {
         try {
             const token = localStorage.getItem('token');
+            const url = isEditMode ? `http://localhost:8080/tours/${newTour.tourId}` : 'http://localhost:8080/tours'; // URL cho chế độ chỉnh sửa và thêm mới
+            const method = isEditMode ? 'PUT' : 'POST'; // Chọn phương thức PUT cho chỉnh sửa
 
-            const response = await fetch('http://localhost:8080/users/adminCreate', {
-                method: 'POST',
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(newUser),
+                body: JSON.stringify(newTour),
             });
 
             if (response.ok) {
-                const result = await response.json();
-                console.log('User added:', result);
-                setIsModalVisible(false); // Ẩn modal sau khi thêm thành công
-                fetchData(); // Cập nhật danh sách người dùng sau khi thêm thành công
-                // Reset newUser state sau khi thêm thành công
-                setNewUser({
-                    username: '',
-                    email: '',
-                    phoneNumber: '',
-                    password: '',
-                    roles: '', // Đặt giá trị mặc định cho role
+                setIsModalVisible(false);
+                fetchData(); // Cập nhật danh sách tour sau khi thêm hoặc chỉnh sửa thành công
+                message.success(isEditMode ? 'Tour đã được chỉnh sửa thành công' : 'Tour đã được thêm thành công'); // Thông báo thành công
+                setNewTour({ // Reset newTour state
+                    tourId: '',
+                    tourCode: '',
+                    name: '',
+                    description: '',
+                    image: '',
+                    typeTourId: '',
+                    locationStart: '',
+                    locationFinish: '',
+                    availableDates: [],
+                    timeDate: '',
+                    endDate: '',
+                    price: '',
+                    maxPeople: '',
+                    vehicle: '',
+                    note: '',
+                    isActive: true,
                 });
-                message.success('Người dùng đã được thêm thành công'); // Thông báo thành công
             } else {
-                const errorData = await response.json();
-                // Kiểm tra xem lỗi có phải do người dùng trùng lặp hay không
-                if (errorData.message && errorData.message.includes('User existed')) {
-                    message.error('Người dùng đã tồn tại. Vui lòng kiểm tra lại email.'); // Hiển thị thông báo lỗi trùng người dùng
-                } else {
-                    throw new Error(errorData.message || 'Failed to add user');
-                }
+                throw new Error('Failed to save tour');
             }
         } catch (error) {
-            console.error('Error adding user:', error);
-            message.error(error.message); // Hiển thị lỗi chung nếu có vấn đề khác
+            console.error('Error saving tour:', error);
+            message.error(error.message); // Hiển thị lỗi
         }
     };
 
-
     const columns = [
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
+            title: 'Mã Tour',
+            dataIndex: 'tourCode',
+            key: 'tourCode',
         },
         {
-            title: 'Họ tên',
-            dataIndex: 'username',
-            key: 'username',
+            title: 'Tên Tour',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: 'Số điện thoại',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
+            title: 'Địa điểm khởi hành',
+            dataIndex: 'locationStart',
+            key: 'locationStart',
         },
         {
-            title: 'Địa chỉ',
-            dataIndex: 'address',
-            key: 'address',
+            title: 'Địa điểm kết thúc',
+            dataIndex: 'locationFinish',
+            key: 'locationFinish',
         },
         {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            key: 'gender',
-            render: (gender) => (gender ? 'Nam' : 'Nữ'),
+            title: 'Giá (VND)',
+            dataIndex: 'price',
+            key: 'price',
         },
         {
             title: 'Trạng thái',
-            key: 'isOnline',
-            render: (_, { isOnline }) => (
-                <Tag color={isOnline ? 'green' : 'volcano'}>
-                    {isOnline ? 'Hoạt động' : 'Không hoạt động'}
+            key: 'isActive',
+            render: (_, { isActive }) => (
+                <Tag color={isActive ? 'green' : 'volcano'}>
+                    {isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
                 </Tag>
             ),
         },
         {
-            title: 'Ngày sinh',
-            dataIndex: 'dateOfBirth',
-            key: 'dateOfBirth',
-        },
-        {
-            title: 'Vai trò',
-            dataIndex: 'roles',
-        },
-        {
-            title: 'Hiện thực',
+            title: 'Thao tác',
             key: 'action',
             render: (text, record) => (
                 <div className="action-buttons">
                     <Button type="link" onClick={() => handleEdit(record)}><EyeOutlined /></Button>
-                    <Button type="link" danger onClick={() => showDeleteConfirm(record.email)}><DeleteFilled /></Button>
+                    <Button type="link" danger onClick={() => showDeleteConfirm(record.tourId)}><DeleteFilled /></Button>
                 </div>
             ),
         },
@@ -226,39 +248,29 @@ function SearchTableTour() {
         <div>
             <ul className='searchtable-container'>
                 <li className='search-container'>
-                    <h6>Tìm kiếm người dùng</h6>
+                    <h6>Tìm kiếm Tour</h6>
                     <Form className="custom-inline-form" layout="inline">
                         <Form.Item>
                             <Input
-                                name="username"
-                                placeholder="Tên"
-                                value={searchParams.username}
+                                name="name"
+                                placeholder="Tên Tour"
+                                value={searchParams.name}
                                 onChange={handleInputChange}
                             />
                         </Form.Item>
                         <Form.Item>
                             <Input
-                                name="email"
-                                placeholder="Email"
-                                value={searchParams.email}
+                                name="tourCode"
+                                placeholder="Mã Tour"
+                                value={searchParams.tourCode}
                                 onChange={handleInputChange}
                             />
                         </Form.Item>
-                        <Form.Item>
-                            <Input
-                                name="phoneNumber"
-                                placeholder="Số điện thoại"
-                                value={searchParams.phoneNumber}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Item>
-
                         <Form.Item>
                             <Button type="primary" onClick={handleReset}>
                                 Xóa Trắng
                             </Button>
                         </Form.Item>
-
                         <Form.Item>
                             <Button type="primary">
                                 Tìm kiếm
@@ -272,7 +284,10 @@ function SearchTableTour() {
             <div className='table-header'>
                 <h6>Bảng dữ liệu</h6>
                 <div className='table-header-actions'>
-                    <Button type="primary" onClick={handleAdd}>
+                    <Button
+                        type="primary"
+                        onClick={() => changeComponent('add')} // Chuyển sang form thêm Tour
+                    >
                         <PlusCircleOutlined />
                     </Button>
                     <Button onClick={handleReload}>
@@ -295,64 +310,6 @@ function SearchTableTour() {
                 />
             </div>
 
-            {/* Modal để thêm người dùng mới */}
-            <Modal
-                title="Thêm người dùng mới"
-                visible={isModalVisible}
-                onCancel={() => {
-                    setIsModalVisible(false);
-                    setNewUser({
-                        username: '',
-                        email: '',
-                        phoneNumber: '',
-                        password: '',
-                        roles: '', // Đặt lại giá trị mặc định
-                    });
-                }}
-                onOk={handleSaveNewUser}
-            >
-                <Form layout="vertical">
-                    <Form.Item label="Email">
-                        <Input
-                            name="email"
-                            value={newUser.email}
-                            onChange={handleNewUserChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Tên">
-                        <Input
-                            name="username"
-                            value={newUser.username}
-                            onChange={handleNewUserChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Số điện thoại">
-                        <Input
-                            name="phoneNumber"
-                            value={newUser.phoneNumber}
-                            onChange={handleNewUserChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Mật khẩu">
-                        <Input
-                            name="password"
-                            type="password" // Ẩn mật khẩu
-                            value={newUser.password}
-                            onChange={handleNewUserChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Vai trò">
-                        <select
-                            name="roles"
-                            value={newUser.roles}
-                            onChange={(e) => setNewUser({ ...newUser, roles: [e.target.value] })}
-                        >
-                            <option value="USER">User</option>
-                            <option value="EMPLOYEE">Employee</option>
-                        </select>
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 }
