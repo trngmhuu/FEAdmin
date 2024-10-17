@@ -1,7 +1,9 @@
 import { Tag, Button, Form, Input, Table, Modal, message } from 'antd';
 import React, { useState, useEffect } from 'react';
 import './searchTableTour.css';
+import './transition.css';
 import { DeleteFilled, ExclamationCircleOutlined, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 const { confirm } = Modal;
 
 function SearchTableTour({ changeComponent }) {
@@ -249,7 +251,7 @@ function SearchTableTour({ changeComponent }) {
             <ul className='searchtable-container'>
                 <li className='search-container'>
                     <h6>Tìm kiếm Tour</h6>
-                    <Form className="custom-inline-form" layout="inline">
+                    <Form className="custom-inline-form-tour" layout="inline">
                         <Form.Item>
                             <Input
                                 name="name"
@@ -297,18 +299,28 @@ function SearchTableTour({ changeComponent }) {
             </div>
 
             {/* Bảng dữ liệu với pagination */}
-            <div className='table-container'>
-                <Table
-                    columns={columns}
-                    dataSource={data}
-                    rowKey="id"
-                    pagination={{
-                        pageSize: 3,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['3', '5', '10'],
-                    }}
-                />
-            </div>
+            <TransitionGroup>
+                <CSSTransition
+                    key="searchTable"
+                    timeout={300}
+                    classNames="fade"
+                >
+                    {/* Nội dung chính của bạn ở đây, ví dụ: bảng */}
+                    <div className='table-container'>
+                        <Table
+                            columns={columns}
+                            dataSource={data}
+                            rowKey="id"
+                            pagination={{
+                                pageSize: 3,
+                                showSizeChanger: true,
+                                pageSizeOptions: ['3', '5', '10'],
+                            }}
+                        />
+                    </div>
+                </CSSTransition>
+            </TransitionGroup>
+
 
         </div>
     );
