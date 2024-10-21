@@ -1,10 +1,12 @@
-import { Tag, Button, Form, Input, Table, Modal, message } from 'antd';
+import { Tag, Button, Form, Input, Table, Modal, message, Popover, Calendar } from 'antd';
 import React, { useState, useEffect } from 'react';
 import './searchTableTour.css';
 import './transition.css';
 import { DeleteFilled, ExclamationCircleOutlined, EyeOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import moment from 'moment/moment';
 const { confirm } = Modal;
+
 
 function SearchTableTour({ changeComponent }) {
     const [searchParams, setSearchParams] = useState({
@@ -36,24 +38,32 @@ function SearchTableTour({ changeComponent }) {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token');
-
             const response = await fetch('http://localhost:8080/tours', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
                 },
             });
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+
             const result = await response.json();
-            setData(result); // Cập nhật với kết quả từ API
+            console.log('API Response:', result); // Kiểm tra dữ liệu trả về
+
+            if (Array.isArray(result.result)) {
+                setData(result.result); // Cập nhật với danh sách tours từ `result`
+            } else {
+                throw new Error('Expected result to be an array');
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
+            message.error('Không thể tải dữ liệu từ API.');
         }
     };
+
+
 
     useEffect(() => {
         fetchData();
@@ -78,28 +88,6 @@ function SearchTableTour({ changeComponent }) {
         fetchData();
     };
 
-    const handleAdd = () => {
-        setIsModalVisible(true);
-        setIsEditMode(false); // Chế độ thêm
-        setNewTour({ // Reset newTour state
-            tourId: '',
-            tourCode: '',
-            name: '',
-            description: '',
-            image: '',
-            typeTourId: '',
-            locationStart: '',
-            locationFinish: '',
-            availableDates: [],
-            timeDate: '',
-            endDate: '',
-            price: '',
-            maxPeople: '',
-            vehicle: '',
-            note: '',
-            isActive: true,
-        });
-    };
 
     const handleEdit = (record) => {
         setNewTour(record); // Khi chỉnh sửa, cập nhật thông tin vào newTour
@@ -145,61 +133,12 @@ function SearchTableTour({ changeComponent }) {
         });
     };
 
-    const handleNewTourChange = (e) => {
-        const { name, value } = e.target;
-        setNewTour({
-            ...newTour,
-            [name]: value,
-        });
-    };
-
-    const handleSaveNewTour = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const url = isEditMode ? `http://localhost:8080/tours/${newTour.tourId}` : 'http://localhost:8080/tours'; // URL cho chế độ chỉnh sửa và thêm mới
-            const method = isEditMode ? 'PUT' : 'POST'; // Chọn phương thức PUT cho chỉnh sửa
-
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(newTour),
-            });
-
-            if (response.ok) {
-                setIsModalVisible(false);
-                fetchData(); // Cập nhật danh sách tour sau khi thêm hoặc chỉnh sửa thành công
-                message.success(isEditMode ? 'Tour đã được chỉnh sửa thành công' : 'Tour đã được thêm thành công'); // Thông báo thành công
-                setNewTour({ // Reset newTour state
-                    tourId: '',
-                    tourCode: '',
-                    name: '',
-                    description: '',
-                    image: '',
-                    typeTourId: '',
-                    locationStart: '',
-                    locationFinish: '',
-                    availableDates: [],
-                    timeDate: '',
-                    endDate: '',
-                    price: '',
-                    maxPeople: '',
-                    vehicle: '',
-                    note: '',
-                    isActive: true,
-                });
-            } else {
-                throw new Error('Failed to save tour');
-            }
-        } catch (error) {
-            console.error('Error saving tour:', error);
-            message.error(error.message); // Hiển thị lỗi
-        }
-    };
-
     const columns = [
+        {
+            title: 'ID',
+            dataIndex: 'tourId',
+            key: 'tourId',
+        },
         {
             title: 'Mã Tour',
             dataIndex: 'tourCode',
@@ -216,9 +155,32 @@ function SearchTableTour({ changeComponent }) {
             key: 'locationStart',
         },
         {
-            title: 'Địa điểm kết thúc',
-            dataIndex: 'locationFinish',
-            key: 'locationFinish',
+            title: 'Ngày Hoạt Động',
+            key: 'availableDates',
+            render: (_, { availableDates }) => (
+                <Popover
+                    title="Lịch hoạt động"
+                    content={
+                        <Calendar
+                            fullscreen={false}
+                            dateCellRender={(date) => {
+                                const formattedDate = moment(date).format('YYYY-MM-DD');
+                                const isAvailable = availableDates.some((d) =>
+                                    moment(d).isSame(formattedDate, 'day')
+                                );
+                                return isAvailable ? (
+                                    <div style={{ backgroundColor: '#87d068', borderRadius: '50%', padding: 5 }}>
+                                        {date.date()}
+                                    </div>
+                                ) : null;
+                            }}
+                        />
+                    }
+                    trigger="click"
+                >
+                    <Button type="link">Xem lịch</Button>
+                </Popover>
+            ),
         },
         {
             title: 'Giá (VND)',
@@ -232,6 +194,18 @@ function SearchTableTour({ changeComponent }) {
                 <Tag color={isActive ? 'green' : 'volcano'}>
                     {isActive ? 'Hoạt động' : 'Ngưng hoạt động'}
                 </Tag>
+            ),
+        },
+        {
+            title: 'Hình ảnh',
+            dataIndex: 'image',
+            key: 'image',
+            render: (text) => (
+                <img
+                    src={text}
+                    alt="Tour"
+                    style={{ width: 100, height: 60, objectFit: 'cover', borderRadius: 8 }}
+                />
             ),
         },
         {
@@ -310,7 +284,7 @@ function SearchTableTour({ changeComponent }) {
                         <Table
                             columns={columns}
                             dataSource={data}
-                            rowKey="id"
+                            rowKey="tourId"
                             pagination={{
                                 pageSize: 3,
                                 showSizeChanger: true,

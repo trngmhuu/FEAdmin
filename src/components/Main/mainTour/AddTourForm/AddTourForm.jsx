@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, message, Upload, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import './addTourForm.css';
@@ -10,12 +10,11 @@ function AddTourForm({ changeComponent }) {
         tourCode: '',
         name: '',
         description: '',
-        image: null, // Chúng ta sẽ lưu trữ hình ảnh như là file
+        image: null,
         typeTourId: '',
         typeId: '',
         locationStart: '',
         locationFinish: '',
-        availableDates: [],
         timeDate: '',
         price: '',
         maxPeople: '',
@@ -24,19 +23,83 @@ function AddTourForm({ changeComponent }) {
         isActive: true,
     });
 
+    const [typeTourOptions, setTypeTourOptions] = useState([]);
+    const token = localStorage.getItem('token'); // Lấy token từ localStorage
+
+    // Xử lý thay đổi input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setTour({ ...tour, [name]: value });
     };
 
+    // Xử lý thay đổi hình ảnh
     const handleImageChange = (file) => {
-        setTour({ ...tour, image: file }); // Cập nhật hình ảnh khi có file được tải lên
+        setTour({ ...tour, image: file });
     };
 
-    const handleSave = () => {
-        console.log('Saving new tour:', tour);
-        message.success('Tour mới đã được thêm!');
-        changeComponent('list'); // Quay lại danh sách tour
+    // Gọi API lấy danh sách TypeTour theo typeId
+    const fetchTypeToursByTypeId = async (typeId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/typetours/by-type/${typeId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) throw new Error('Lỗi khi gọi API');
+            const data = await response.json();
+            setTypeTourOptions(data.result);
+        } catch (error) {
+            message.error('Không thể lấy danh sách loại tour.');
+        }
+    };
+
+    const handleTypeIdChange = (value) => {
+        setTour({ ...tour, typeId: value, typeTourId: '' });
+        fetchTypeToursByTypeId(value);
+    };
+
+    // Hàm gọi API để thêm tour mới
+    const addTour = async () => {
+        const formData = {
+            tourCode: tour.tourCode,
+            name: tour.name,
+            description: tour.description,
+            typeTourId: tour.typeTourId,
+            typeId: tour.typeId,
+            locationStart: tour.locationStart,
+            locationFinish: tour.locationFinish,
+            timeDate: tour.timeDate,
+            price: tour.price,
+            maxPeople: tour.maxPeople,
+            vehicle: tour.vehicle,
+            note: tour.note,
+            isActive: tour.isActive,
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/tours', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Response Error:', errorData); // In lỗi từ server (nếu có)
+                throw new Error('Lỗi khi thêm tour');
+            }
+
+            message.success('Tour mới đã được thêm!');
+            changeComponent('list'); // Điều hướng về danh sách tour
+        } catch (error) {
+            message.error('Không thể thêm tour. Vui lòng thử lại!');
+        }
     };
 
     return (
@@ -49,6 +112,25 @@ function AddTourForm({ changeComponent }) {
                     <Form.Item label="Tên Tour">
                         <Input name="name" value={tour.name} onChange={handleInputChange} />
                     </Form.Item>
+                    <Form.Item label="Thể loại">
+                        <Select name="typeId" value={tour.typeId} onChange={handleTypeIdChange}>
+                            <Option value="1">Tour trong nước</Option>
+                            <Option value="2">Tour ngoài nước</Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="Loại Tour">
+                        <Select
+                            name="typeTourId"
+                            value={tour.typeTourId}
+                            onChange={(value) => setTour({ ...tour, typeTourId: value })}
+                        >
+                            {typeTourOptions.map((typeTour) => (
+                                <Option key={typeTour.typeTourId} value={typeTour.typeTourId}>
+                                    {typeTour.name}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
                     <Form.Item label="Mô tả">
                         <Input.TextArea name="description" value={tour.description} onChange={handleInputChange} />
                     </Form.Item>
@@ -56,21 +138,11 @@ function AddTourForm({ changeComponent }) {
                         <Upload
                             beforeUpload={(file) => {
                                 handleImageChange(file);
-                                return false; // Ngăn chặn upload tự động
+                                return false;
                             }}
                         >
                             <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
                         </Upload>
-                    </Form.Item>
-                    <Form.Item label="Loại Tour">
-                        <Select name="typeTourId" value={tour.typeTourId} onChange={value => setTour({ ...tour, typeTourId: value })}>
-                            <Option value="type1">Loại 1</Option>
-                            <Option value="type2">Loại 2</Option>
-                            <Option value="type3">Loại 3</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="ID Loại">
-                        <Input name="typeId" value={tour.typeId} onChange={handleInputChange} />
                     </Form.Item>
                     <Form.Item label="Địa điểm xuất phát">
                         <Input name="locationStart" value={tour.locationStart} onChange={handleInputChange} />
@@ -80,11 +152,10 @@ function AddTourForm({ changeComponent }) {
                     </Form.Item>
                     <Form.Item label="Ngày khởi hành">
                         <Input
-                            type="text" // Có thể sử dụng date picker nếu cần
                             name="timeDate"
                             value={tour.timeDate}
                             onChange={handleInputChange}
-                            placeholder="Ngày khởi hành"
+                            placeholder="YYYY-MM-DD"
                         />
                     </Form.Item>
                     <Form.Item label="Giá">
@@ -109,7 +180,7 @@ function AddTourForm({ changeComponent }) {
                             <Option value="inactive">Không hoạt động</Option>
                         </Select>
                     </Form.Item>
-                    <Button type="primary" onClick={handleSave}>
+                    <Button type="primary" onClick={addTour}>
                         Lưu Tour
                     </Button>
                     <Button onClick={() => changeComponent('list')} style={{ marginLeft: '10px' }}>
@@ -120,7 +191,7 @@ function AddTourForm({ changeComponent }) {
             <div className="form-right">
                 {tour.image && (
                     <img
-                        src={URL.createObjectURL(tour.image)} // Hiển thị hình ảnh đã tải lên
+                        src={URL.createObjectURL(tour.image)}
                         alt="Tour Preview"
                         style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                     />
