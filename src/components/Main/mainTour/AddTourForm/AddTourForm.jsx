@@ -61,9 +61,11 @@ function AddTourForm({ changeComponent }) {
         fetchTypeToursByTypeId(value);
     };
 
-    // Hàm gọi API để thêm tour mới
     const addTour = async () => {
-        const formData = {
+        const formData = new FormData();
+
+        // Đính kèm JSON chuỗi của tour vào form-data với content-type application/json
+        const tourJson = JSON.stringify({
             tourCode: tour.tourCode,
             name: tour.name,
             description: tour.description,
@@ -77,30 +79,39 @@ function AddTourForm({ changeComponent }) {
             vehicle: tour.vehicle,
             note: tour.note,
             isActive: tour.isActive,
-        };
+        });
+
+        // Append tour JSON dưới dạng Blob với content-type là application/json
+        formData.append('tour', new Blob([tourJson], { type: 'application/json' }));
+
+        // Đính kèm file ảnh vào form-data (nếu có)
+        if (tour.image) {
+            formData.append('image', tour.image);
+        }
 
         try {
             const response = await fetch('http://localhost:8080/tours', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`, // Thêm token nếu cần
                 },
-                body: JSON.stringify(formData),
+                body: formData, // Sử dụng FormData
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Response Error:', errorData); // In lỗi từ server (nếu có)
+                console.error('Response Error:', errorData);
                 throw new Error('Lỗi khi thêm tour');
             }
 
             message.success('Tour mới đã được thêm!');
-            changeComponent('list'); // Điều hướng về danh sách tour
+            changeComponent('list'); // Chuyển về danh sách tour sau khi thêm thành công
         } catch (error) {
             message.error('Không thể thêm tour. Vui lòng thử lại!');
         }
     };
+
+
 
     return (
         <div className="add-tour-form-container">
@@ -138,12 +149,23 @@ function AddTourForm({ changeComponent }) {
                         <Upload
                             beforeUpload={(file) => {
                                 handleImageChange(file);
-                                return false;
+                                return false;  // Ngăn không cho upload ngay lập tức
                             }}
                         >
                             <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
                         </Upload>
                     </Form.Item>
+                    <Form.Item label="Hình ảnh">
+                        <Upload
+                            beforeUpload={(file) => {
+                                handleImageChange(file);
+                                return false;  // Ngăn không cho upload ngay lập tức
+                            }}
+                        >
+                            <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+                        </Upload>
+                    </Form.Item>
+
                     <Form.Item label="Địa điểm xuất phát">
                         <Input name="locationStart" value={tour.locationStart} onChange={handleInputChange} />
                     </Form.Item>
